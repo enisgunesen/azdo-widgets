@@ -3,13 +3,13 @@ VSS.init({
 	usePlatformStyles: true
 });
 
-function validatePatTextInput($patInput, $errorSingleLineInput){
+function validatePatTextInput($patInput, $errorPat){
 	if ($patInput.val() == ""){
-		$errorSingleLineInput.text("Please enter your PAT.");
-		$errorSingleLineInput.parent().css("visibility", "visible");
+		$errorPat.text("Please enter your PAT.");
+		$errorPat.parent().css("visibility", "visible");
 		return;
 	}
-	$errorSingleLineInput.parent().css("visibility", "hidden");
+	$errorPat.parent().css("visibility", "hidden");
 	return true;
 }
 
@@ -33,12 +33,34 @@ function validateselectPeriod($selectPeriod, $errorselectPeriod){
 	return true;
 }
 
+function validateAreaPathTextInput($areapathInput, $errorareapath){
+	if ($areapathInput.val() == ""){
+		$errorareapath.text("Please enter your PAT.");
+		$errorareapath.parent().css("visibility", "visible");
+		return;
+	}
+	$errorareapath.parent().css("visibility", "hidden");
+	return true;
+}
+
+function validateNameTextInput($nameInput, $errorSingleLineInput){
+	if ($nameInput.val() == ""){
+		$errorSingleLineInput.text("Please enter widget title.");
+		$errorSingleLineInput.parent().css("visibility", "visible");
+		return;
+	}
+	$errorSingleLineInput.parent().css("visibility", "hidden");
+	return true;
+}
+
 function getCustomSettings(){
 	var customSettings = {
 		data: JSON.stringify({
             selectWorkItemType: $("#selectWorkItemType select").val(), 
             selectPeriod: $("#selectPeriod select").val(), 
-            pat: $("#pat-input input").val()
+            pat: $("#pat-input input").val(),
+            areapath: $("#areapath-input input").val(),
+			name: $("#name-input input").val()
         })
 	};
 	return customSettings;
@@ -51,10 +73,14 @@ VSS.require("TFS/Dashboards/WidgetHelpers", function (WidgetHelpers) {
 		var $patInput = $("#pat-input input");
 		var $selectWorkItemType = $("#selectWorkItemType select");						
 		var $selectPeriod = $("#selectPeriod select");
+		var $areapath = $("#areapath-input input");
+		var $nameInput = $("#name-input input");
 
-		var $errorSingleLineInput = $("#pat-input .validation-error > .validation-error-text");
+		var $errorPat = $("#pat-input .validation-error > .validation-error-text");
 		var $errorselectWorkItemType = $("#selectWorkItemType .validation-error > .validation-error-text");						
 		var $errorselectPeriod = $("#selectPeriod .validation-error > .validation-error-text");						
+		var $errorareapath = $("#areapath-input .validation-error > .validation-error-text");
+		var $errorSingleLineInput = $("#name-input .validation-error > .validation-error-text");
 		
 		return {
 			load: function (widgetSettings, widgetConfigurationContext) {
@@ -63,10 +89,12 @@ VSS.require("TFS/Dashboards/WidgetHelpers", function (WidgetHelpers) {
                     $patInput.val(settings.pat);
                     $selectWorkItemType.val(settings.selectWorkItemType);
                     $selectPeriod.val(settings.selectPeriod);
+                    $areapath.val(settings.areapath);
+                    $nameInput.val(settings.name);
                 }
 
 				$patInput.on("input", function(){
-					if (validatePatTextInput($patInput, $errorSingleLineInput)){
+					if (validatePatTextInput($patInput, $errorPat)){
 						widgetConfigurationContext.notify(WidgetHelpers.WidgetEvent.ConfigurationChange, WidgetHelpers.WidgetEvent.Args(getCustomSettings()));
 					} 
 				});
@@ -82,17 +110,30 @@ VSS.require("TFS/Dashboards/WidgetHelpers", function (WidgetHelpers) {
 						widgetConfigurationContext.notify(WidgetHelpers.WidgetEvent.ConfigurationChange, WidgetHelpers.WidgetEvent.Args(getCustomSettings()));
 					} 
 				 });
-				            
-															
+				     
+				$areapath.on("input", function(){
+					if (validateAreaPathTextInput($areapath, $errorareapath)){
+						widgetConfigurationContext.notify(WidgetHelpers.WidgetEvent.ConfigurationChange, WidgetHelpers.WidgetEvent.Args(getCustomSettings()));
+					} 
+				});       
+												
+				$nameInput.on("input", function(){
+					if (validateNameTextInput($nameInput, $errorSingleLineInput)){
+						widgetConfigurationContext.notify(WidgetHelpers.WidgetEvent.ConfigurationChange, WidgetHelpers.WidgetEvent.Args(getCustomSettings()));
+					} 
+				});
+
 				return WidgetHelpers.WidgetStatusHelper.Success();
 			},
 			onSave: function() {
 				
-				var patValid = validatePatTextInput($patInput, $errorSingleLineInput);
+				var patValid = validatePatTextInput($patInput, $errorPat);
 				var selectWorkItemTypeValid = validateselectWorkItemType($selectWorkItemType, $errorselectWorkItemType)
 				var selectPeriodValid = validateselectPeriod($selectPeriod, $errorselectPeriod)
+				var areapathValid = validateAreaPathTextInput($areapath, $errorareapath);
+				var nameValid = validateNameTextInput($nameInput, $errorSingleLineInput);
 				
-				if (!patValid || !selectWorkItemTypeValid || !selectPeriodValid){
+				if (!patValid || !selectWorkItemTypeValid || !selectPeriodValid || !areapathValid || !nameValid){
 					return WidgetHelpers.WidgetConfigurationSave.Invalid();
 				}
 											

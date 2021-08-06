@@ -39,7 +39,10 @@
                 }
 
                 $patWarning.hide();
-                getChanges(settings.pat, settings.selectPeriod, settings.selectWorkItemType);
+                
+                $('body h1').text(settings.name);
+
+                getChanges(settings.pat, settings.selectPeriod, settings.selectWorkItemType, settings.areapath);
                 return WidgetHelpers.WidgetStatusHelper.Success();
               }
 
@@ -65,7 +68,7 @@
         $(this).val("");
       });
 
-      function getChanges(pat, selectPeriod, selectWorkItemType) {
+      function getChanges(pat, selectPeriod, selectWorkItemType, areapath) {
         if (!pat)
         {
           console.log("pat is empty");
@@ -82,7 +85,7 @@
         {
           period = "compute(year(CreatedDate) as year, month(CreatedDate) as month, day(CreatedDate) lt 15 as firstHalf)/groupby((year,month,firstHalf), aggregate($count as count, Effort with sum as sumOfEffort))";
         }
-
+        
         var authHeader = "Basic " + btoa(":" + pat);
 
         $.ajax({
@@ -98,8 +101,10 @@
             projectName +
             "/_odata/v2.0/WorkItems?$apply=filter(WorkItemType eq '" +
             selectWorkItemType +
-            "')/" +
-            period, //compute(year(CreatedDate) as year, month(CreatedDate) as month, day(CreatedDate) lt 15 as firstHalf)/groupby((year,month,firstHalf), aggregate($count as count, Effort with sum as sumOfEffort))",
+            "' and startswith(Area/AreaPath,'" +
+            areapath +
+            "'))/" +
+            period,
           beforeSend: function (xhr) {},
           success: function (data) {
             var data1 = data.value.map((p, i) =>
