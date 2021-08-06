@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+	<html xmlns="http://www.w3.org/1999/xhtml">
+		<head>        					
+            <script src="lib/VSS.SDK.min.js"></script>
+			<script src="scripts/configuration.js"></script>	
+		</head>
+		<body>
+			<div class="widget-configuration">
+			
+				<div class="single-line-text-input" id="pat-input">
+					<label>Personal Access Token</label>
+					<input type="text" value=""></input>
+					<span class="validation-error">
+						<span class="icon-error-exclamation"></span>
+						<span class="validation-error-text"></span>
+					</span>
+				</div>
+
+				<div class="dropdown" id="selectWorkItemType">
+					<label>Work Item Type</label>
+					<div class="wrapper">
+						<select>					
+                            <option value="None">None</option>
+                            <option value="Product Backlog Item">Product Backlog Item</option>
+                            <option value="Bug">Bug</option>	
+						</select>
+					</div>
+					<span class="validation-error">
+						<span class="icon-error-exclamation"></span>
+						<span class="validation-error-text"></span>
+					</span>
+				</div>	
+
+				<div class="dropdown" id="selectPeriod">
+					<label>Period</label>
+					<div class="wrapper">
+						<select>					
+                            <option value="None">None</option>
+                            <option value="Bi Weekly">Bi Weekly</option>
+                            <option value="Monthly">Monthly</option>	
+						</select>
+					</div>
+					<span class="validation-error">
+						<span class="icon-error-exclamation"></span>
+						<span class="validation-error-text"></span>
+					</span>
+				</div>	
+			</div>
+		</body>
+	</html>

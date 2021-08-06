@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link href="bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <style>
+      body {
+        color: #000;
+        margin: 10px;
+        font-family: "Segoe UI VSS (Regular)", "-apple-system",
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Effort And Count</h1>
+    <span id="patWarning" style="background-color: red; visibility: hidden" >Please provide a Personal Access Token</span>
+    
+    <div class="chart" style="width: 100%; height: 400px; margin-top: 10px"></div>
+
+    <script src="lib/VSS.SDK.min.js"></script>
+    <script src="jquery.min.js"></script>
+    <script src="jquery.flot.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <script type="text/javascript">
+      VSS.init({
+        explicitNotifyLoaded: true,
+        usePlatformStyles: true
+      });
+      VSS.require("TFS/Dashboards/WidgetHelpers", function (WidgetHelpers) {
+          WidgetHelpers.IncludeWidgetStyles();
+          VSS.register("ArkasAggregateViewer", function () {    
+              var execute =  function (widgetSettings) {
+                var settings = JSON.parse(widgetSettings.customSettings.data);
+                var $patWarning = $('#patWarning');
+
+                if (!settings || !settings.pat) {
+                  $patWarning.show();
+                  return WidgetHelpers.WidgetStatusHelper.Success();
+                }
+
+                $patWarning.hide();
+                getChanges(settings.pat, settings.selectPeriod, settings.selectWorkItemType);
+                return WidgetHelpers.WidgetStatusHelper.Success();
+              }
+
+              return {
+                load: function (widgetSettings) {
+                  return execute(widgetSettings);
+                },
+                reload: function (widgetSettings) {
+                  return execute(widgetSettings);
+                }
+              }
+          });
+
+          VSS.notifyLoadSucceeded();
+      })
+      // VSS.ready(function () {
+      //   getChanges(pat);
+      // });
+      $("input[name=workitemtype]").on("click", function () {
+        $(this).val("");
+      });
+      $("input[name=period]").on("click", function () {
+        $(this).val("");
+      });
+
+      function getChanges(pat, selectPeriod, selectWorkItemType) {
+        if (!pat)
+        {
+          console.log("pat is empty");
+          return;
+        }
+        var accountName = VSS.getWebContext().account.name;
+        var projectName = VSS.getWebContext().project.name;
+        var period = "";
+        if (selectPeriod == "Monthly")
+        {
+          period = "compute(year(CreatedDate) as year, month(CreatedDate) as month)/groupby((year,month), aggregate($count as count, Effort with sum as sumOfEffort))";
+        }
+        else if (selectPeriod == "Bi Weekly")
+        {
+          period = "compute(year(CreatedDate) as year, month(CreatedDate) as month, day(CreatedDate) lt 15 as firstHalf)/groupby((year,month,firstHalf), aggregate($count as count, Effort with sum as sumOfEffort))";
+        }
+
+        var authHeader = "Basic " + btoa(":" + pat);
+
+        $.ajax({
+          type: "get",
+          async: false,
+          headers: {
+            Authorization: authHeader,
+          },
+          url:
+            "https://analytics.dev.azure.com/" +
+            accountName +
+            "/" +
+            projectName +
+            "/_odata/v2.0/WorkItems?$apply=filter(WorkItemType eq '" +
+            selectWorkItemType +
+            "')/" +
+            period, //compute(year(CreatedDate) as year, month(CreatedDate) as month, day(CreatedDate) lt 15 as firstHalf)/groupby((year,month,firstHalf), aggregate($count as count, Effort with sum as sumOfEffort))",
+          beforeSend: function (xhr) {},
+          success: function (data) {
+            var data1 = data.value.map((p, i) =>
+              p.sumOfEffort == null ? [i, 0] : [i, p.sumOfEffort]
+            );
+            var data2 = data.value.map((p, i) =>
+              p.count == null ? [i, 0] : [i, p.count]
+            );
+            var categories = data.value.map((data, i) => [
+              i,
+              data.year +
+                "/" +
+                data.month +
+                (selectPeriod == "Monthly"
+                  ? ""
+                  : "/" + (data.firstHalf ? "1" : "2")),
+            ]);
+            console.log(data1);
+            console.log(data2);
+            console.log(categories);
+            $.plot(
+              ".chart",
+              [
+                {
+                  label: "Sum Of Effort",
+                  data: data1,
+                  order: 1,
+                  color: "#5eba7d",
+                  bars: {
+                    show: true,
+                    barWidth: 0.4,
+                    order: 1,
+                    align: "left",
+                  },
+                },
+                {
+                  label: "Count",
+                  data: data2,
+                  order: 2,
+                  color: "#cd171e",
+                  bars: {
+                    show: true,
+                    barWidth: 0.4,
+                    order: 1,
+                    align: "right",
+                  },
+                },
+              ],
+              {
+                //   series: {
+                //     bars: {
+                //       show: true,
+                //       barWidth: 0.2,
+                //       order: 1,
+                //     },
+                //   },
+                xaxis: {
+                  mode: "categories",
+                  ticks: categories,
+                  tickLength: 1,
+                },
+                grid: {
+                  hoverable: true,
+                },
+                yAxis: {
+                  allowDecimals: false,
+                },
+              }
+            );
+            //   console.log(data);
+            //   document.getElementById("name").innerText =
+            //     data.value[0]?.sumOfEffort + " " + data.value[0]?.count;
+          },
+          error: function (xhr, textStatus, errorMessage) {
+            console.log(errorMessage);
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

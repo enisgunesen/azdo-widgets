@@ -1,0 +1,122 @@
+{
+    "manifestVersion": 1,
+    "id": "arkas-aggregate-viewer",
+    "publisher": "enisgunesen",
+    "version": "1.0.19",
+    "name": "Aggregate Viewer",
+    "description": "Aggregate Viewer Extension",
+    "public": false,
+    "categories": ["Azure Boards"],
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "scopes":[
+        "vso.work",
+        "vso.analytics"
+    ],
+    "contributions": [
+        {
+            "id": "ArkasAggregateViewer-Configuration",
+            "type": "ms.vss-dashboards-web.widget-configuration",
+            "targets": [
+                "ms.vss-dashboards-web.widget-configuration"
+            ],
+            "properties": {
+                "name": "ArkasAggregateViewer Configuration",
+                "description": "Configures Arkas Aggregate Viewer",
+                "uri": "configuration.html"
+            }
+        },
+        {
+            "id": "ArkasAggregateViewer",
+            "type": "ms.vss-dashboards-web.widget",
+            "targets": [
+                "ms.vss-dashboards-web.widget-catalog",
+                ".ArkasAggregateViewer-Configuration"
+            ],
+            "properties": {
+                "name": "Aggregate Viewer",
+                "description": "Arkas Aggregate Viewer",
+                "catalogIconUrl": "img/CatalogIcon.png",
+                "previewImageUrl": "img/preview.png",                            
+                "uri": "aggregate-viewer.html",
+                "supportedScopes": ["project_team"],
+                "supportedSizes": [
+                    {
+                        "rowSpan": 2,
+                        "columnSpan": 2
+                    },
+                    {
+                        "rowSpan": 1,
+                        "columnSpan": 1
+                    },   
+                    {
+                        "rowSpan": 1,
+                        "columnSpan": 2
+                    },   
+                    {
+                        "rowSpan": 2,
+                        "columnSpan": 3
+                    },
+                    {
+                        "rowSpan":2,
+                        "columnSpan": 4
+                    },
+                    {
+                        "rowSpan": 3,
+                        "columnSpan": 2
+                    },
+                    {
+                        "rowSpan": 3,
+                        "columnSpan": 3
+                    },
+                    {
+                        "rowSpan":3,
+                        "columnSpan": 4
+                    }
+                ]
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "aggregate-viewer.html",
+            "addressable": true
+        },
+        {
+            "path": "configuration.html",
+            "addressable": true
+        },
+        {
+            "path": "scripts",
+            "addressable": true
+        },
+        {
+            "path": "node_modules/vss-web-extension-sdk/lib",
+            "addressable": true,
+            "packagePath": "lib"
+        },
+        {
+            "path": "node_modules/jquery/dist/jquery.min.js",
+            "addressable": true,
+            "packagePath": "jquery.min.js"
+        },
+        {
+            "path": "node_modules/jquery.flot/jquery.flot.js",
+            "addressable": true,
+            "packagePath": "jquery.flot.js"
+        },
+        {
+            "path": "node_modules/bootstrap/dist/css/bootstrap.min.css",
+            "addressable": true,
+            "packagePath": "bootstrap.min.css"
+        },
+        {
+            "path": "node_modules/bootstrap/dist/js/bootstrap.min.js",
+            "addressable": true,
+            "packagePath": "bootstrap.min.js"
+        }
+    ]
+}
